@@ -1,0 +1,7 @@
+xarray
+opencv-python
+tqdm
+logging
+PIL
+argparse
+pyrealsense2
