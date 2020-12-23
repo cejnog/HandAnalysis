@@ -8,5 +8,5 @@ Requirements:
 
 Usage:
 ```python
-python2.7 src/demo/rs_tracker_ppm.py 
+python2.7 src/demo/rs_tracker_ppm.py (ppmfolder)
 ```
