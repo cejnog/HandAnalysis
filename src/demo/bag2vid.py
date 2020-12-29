@@ -1,3 +1,9 @@
+'''
+Author: Luciano Cejnog
+Institution: IME-USP
+Release Date: 2020-12-29
+'''
+
 import logging
 logging.basicConfig(level=logging.INFO)
 import numpy as np
@@ -83,10 +89,6 @@ def main():
     
     # intrinsic paramters of Intel Realsense SR300
     fx, fy, ux, uy = 463.889, 463.889, 320, 240
-    # paramters
-    # dataset = 'icvl'
-    # if len(sys.argv) == 3:
-    #     dataset = sys.argv[2]
     colorizer = rs.colorizer()
     decimation = rs.decimation_filter()
     spatial = rs.spatial_filter()
@@ -112,39 +114,23 @@ def main():
     # Tell config that we will use a recorded device from filem to be used by the pipeline through playback.
     rs.config.enable_device_from_file(config, args.input)
     
-    # Configure the pipeline to stream the depth stream
-    
-    # config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-    # config.enable_stream(rs.stream.color, 1920, 1080, rs.format.bgr8, 30)
-    print("Q")
     # Start streaming from file
     profile = pipeline.start(config)
     
     depth_sensor = profile.get_device().first_depth_sensor()
     depth_scale = depth_sensor.get_depth_scale()
     print("Depth Scale is: " , depth_scale)
-    
-    
-    
+
     while True:
-        
-        # depth = read_frame_from_device(pipeline, depth_scale)
+        #get next color and depth frame
         frames = pipeline.wait_for_frames()
-        # depth_frame = frames.get_depth_frame()
-        
         color = frames.get_color_frame()
         frame = frames.get_depth_frame()
-        # frame = decimation.process(frame)
+        #process frame
         frame = depth_to_disparity.process(frame)
-        # frame = spatial.process(frame)
-        # frame = temporal.process(frame)
         frame = disparity_to_depth.process(frame)
 
-        # frame = hole_filling.process(frame)    
-        # if not depth_frame:
-        #    return None
-        # Convert images to numpy arrays
-        
+        # Convert images to numpy arrays        
         depth_image = np.asarray(frame.get_data(), dtype=np.float32)
         color_image = np.asanyarray(color.get_data())
         color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
@@ -162,22 +148,14 @@ def main():
         
         # preprocessing depth
         depth[depth == 0] = depth.max()
-        # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth, alpha=0.03), cv2.COLORMAP_JET)
         depth_colormap = show_results(depth)
-        # cv2.cvtColor(depth_colormap, cv2.COLOR_GRAY2RGB, depth_colormap)
+        # Put color and depth image side by side
         images = np.hstack((color_image, depth_colormap))
-        # images = show_results(depth)  #depth_colormap
-        # training samples are left hands in icvl dataset,
-        # right hands in nyu dataset and msra dataset,
-        # for this demo you should use your right hand        
-        # cv2.imshow('result', images)
-        # cv2.waitKey(30)
         videoFile.write(images)        
-        # videoFile.write(img_show)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         i=i+1
-    # stop_device(pipeline)
+    # Finish and save videos
     videoFile.release()
     
 

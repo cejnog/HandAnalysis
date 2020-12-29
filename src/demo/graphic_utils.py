@@ -1,3 +1,9 @@
+'''
+Author: Luciano Cejnog
+Institution: IME-USP
+Release Date: 2020-12-29
+'''
+
 import os, sys
 import math
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -29,10 +35,11 @@ nameangles = ['F-I-CMC', 'F-II-MCP', 'F-III-MCP', 'F-IV-MCP', 'F-V-MCP', 'F-I-MC
 flexionangles = [x for x in nameangles if x.startswith('F') and not('-I-' in x)]
 abductionangles = [x for x in nameangles if x.startswith('A') and not('-I-' in x)]
 
+# Normalizes vector
 def unit_vector(vector):
-    """ qReturns the unit vector of the vector.  """
     return np.array(vector / np.linalg.norm(vector))
 
+# Angle between two vectors
 def angle_between(v1, v2):
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
@@ -40,6 +47,7 @@ def angle_between(v1, v2):
     # return np.degrees(np.arctan2(np.linalg.norm(np.cross(v1_u, v2_u)), np.dot(v1_u, v2_u)))
 
 
+# Signed angle between two vectors (aligning with the given normal vector)
 def signed_angle_between(v1, v2, normal):
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
@@ -49,6 +57,7 @@ def signed_angle_between(v1, v2, normal):
         angle = -angle
     return angle
 
+# Angle between three points
 def angle(p0, midpoint, p1, mult=1):
     v1 = midpoint - p0
     v2 = mult*(p1 - midpoint)
@@ -60,6 +69,8 @@ def midpoint(p0, p1):
 def proj(v, n):
     return v - (np.dot(v, n)/np.linalg.norm(n)) * n
 
+
+# Angle measures from skeleton: returns dictionary with each angle, dictionary with each position after deprojection from pixel to 3D
 def skeletonMeasures(skeleton, dataset, intr):
     if dataset != 'hands17':
         print('not implemented')

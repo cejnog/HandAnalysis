@@ -1,3 +1,9 @@
+'''
+Author: Luciano Cejnog
+Institution: IME-USP
+Release Date: 2020-12-29
+'''
+
 import cv2
 import sys, os, shutil
 #import logging
@@ -61,7 +67,7 @@ def pgmread(filename):
         img.append(tmpList)
     return (array(img), width, height)
 
-
+#Show results with pose
 def show_results_upper(img, results, dataset, upper_, lower_ = 0):
     img = np.minimum(img, 1500)
     #img = (img - img.min()) / (img.max() - img.min())
@@ -91,23 +97,21 @@ while True:
         img, w, h = pgmread(folder + str(i) + '.pgm')
         img = np.asarray(img, dtype=np.float32)
             
-        #img[0:100, :] = 0
-        #img[540:640, :] = 0 
-        #img = np.minimum(img, upper_)
-        
         print(img.min(), img.max())
         if hand == 'r':
             img = img[:, ::-1]  # flip
 
-        #img = upper_ - img
+        #detect joints using Pose-REN
         results, _ = hand_model.detect_image(img) 
         
+        #Show skeleton over image
         img = np.uint8(img)
         img[img == 0] = img.max()
         img_show = show_results_upper(img, results, dataset, upper_)
         cv2.imshow("Depth Stream", img_show)
         k = cv2.waitKey(1) 
-    
+        
+        #Control limit max depth using + and - keys
         if k == ord('+'):        
             upper_ += 20
             print(upper_) 

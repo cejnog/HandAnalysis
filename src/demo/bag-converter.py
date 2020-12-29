@@ -1,3 +1,9 @@
+'''
+Author: Luciano Cejnog
+Institution: IME-USP
+Release Date: 2020-12-29
+'''
+
 import xarray as xr
 import cv2
 import sys, os, shutil
@@ -30,6 +36,7 @@ from numpy import array, int32
 import numpy as np
 import struct
 
+# Save PGM File with binary encoding
 def pgm_binary_write ( img, filename, maxval ):
 
     img = int32(img).tolist()
@@ -60,6 +67,7 @@ def pgm_binary_write ( img, filename, maxval ):
 
     return
 
+# Save PGM file without encoding
 def pgmwrite(img, filename, maxVal=255, magicNum='P2'):
     """  This function writes a numpy array to a Portable GrayMap (PGM) 
     image file. By default, header number P2 and max gray level 255 are 
@@ -115,15 +123,8 @@ def init_device(inputfile):
         return pipeline, depth_scale
     except:
         print("can't init device")
-
-# def show_filtered_depth(img):
-#     img = np.minimum(img, 450)
-#     img = (img - img.min()) / (img.max() - img.min())
-#     img = np.uint8(img*255)
-#     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-#     return img
         
-
+# Process bag file
 def processBag(input, output, hand='l'): 
     colorFrame0 = None
     i=0
@@ -166,12 +167,10 @@ def processBag(input, output, hand='l'):
 
         depths.append(depth)
     i = 0
-
+    #step 2: convert images from list to PIL Image and save with pgmwrite function
     for d in depths:
         result = Image.fromarray(d)
-        #bw = result.convert("L")
         pgmwrite(result, output + '/' + str(i) + '.pgm', 1024)
-        #result.save(output + '/' + str(i) + '.pgm')
         i += 1
 
 def main(input, hand):
@@ -181,6 +180,7 @@ def main(input, hand):
     processBag(input, output, hand)
     
 if __name__ == '__main__':
+    # For each bag file in the dataset, check if directory with PGM exists, if not process the bag file
     for file in sorted(dataset3_utils.bag_files):
         print('/media/cejnog/DATA/pgm/' +  os.path.splitext(dataset3_utils.bag_files[file])[0].split('/')[-1] + '/')
         if os.path.isdir('/media/cejnog/DATA/pgm/' + os.path.splitext(dataset3_utils.bag_files[file])[0].split('/')[-1] + '/'):
